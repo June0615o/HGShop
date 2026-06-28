@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}类别管理 - 惠购商城{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h4><i class="bi bi-tags"></i> 商品类别管理</h4>
+    <div class="row mt-3">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header fw-bold">添加类别</div>
+                <div class="card-body">
+                    <form method="POST">
+                        <input type="hidden" name="action" value="add">
+                        <div class="input-group">
+                            <input type="text" name="name" class="form-control" placeholder="类别名称" required>
+                            <button type="submit" class="btn btn-primary">添加</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="card">
+                <div class="card-header fw-bold">现有类别</div>
+                <ul class="list-group list-group-flush">
+                    {% for cat in categories %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ cat.name }}
+                        <span class="badge bg-primary rounded-pill">{{ cat.products.count() }} 件商品</span>
+                        <form method="POST" class="d-inline" onsubmit="return confirm('确定删除类别 "{{ cat.name }}"？相关商品将变为无分类。')">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="category_id" value="{{ cat.id }}">
+                            <button class="btn btn-sm btn-outline-danger">删除</button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

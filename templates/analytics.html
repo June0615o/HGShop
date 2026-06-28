@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}数据大屏 - 惠购商城{% endblock %}
+{% block extra_head %}
+<style>
+    .dashboard-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    .dashboard-grid .full-width { grid-column: 1 / -1; }
+    @media (max-width: 768px) { .dashboard-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container-fluid mt-4">
+    <h4 class="mb-3"><i class="bi bi-graph-up"></i> 数据分析大屏</h4>
+
+    <!-- 统计卡片 -->
+    <div class="row g-2 mb-3" id="statsCards">
+        <div class="col-md-3"><div class="card stat-card p-3 text-center"><small class="text-muted">今日销售额</small><h4 class="text-danger" id="statToday">--</h4></div></div>
+        <div class="col-md-3"><div class="card stat-card p-3 text-center"><small class="text-muted">今日订单数</small><h4 id="statOrders">--</h4></div></div>
+        <div class="col-md-3"><div class="card stat-card p-3 text-center"><small class="text-muted">商品总数</small><h4 id="statProducts">--</h4></div></div>
+        <div class="col-md-3"><div class="card stat-card p-3 text-center"><small class="text-muted">累计总收入</small><h4 class="text-success" id="statTotal">--</h4></div></div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- 销售趋势（日/周/月切换） -->
+        <div class="card full-width">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-bold"><i class="bi bi-graph-up"></i> 销售趋势</span>
+                <div class="btn-group btn-group-sm" id="trendBtns">
+                    <button class="btn btn-outline-primary active" data-period="daily">日</button>
+                    <button class="btn btn-outline-primary" data-period="weekly">周</button>
+                    <button class="btn btn-outline-primary" data-period="monthly">月</button>
+                </div>
+            </div>
+            <div class="card-body"><div class="chart-container" style="height:320px;"><canvas id="trendChart"></canvas></div></div>
+        </div>
+
+        <!-- 商品销售排行榜 -->
+        <div class="card">
+            <div class="card-header fw-bold"><i class="bi bi-trophy"></i> 商品销售排行</div>
+            <div class="card-body"><div class="chart-container"><canvas id="rankChart"></canvas></div></div>
+        </div>
+
+        <!-- 类别分布 -->
+        <div class="card">
+            <div class="card-header fw-bold"><i class="bi bi-pie-chart"></i> 类别销售额分布</div>
+            <div class="card-body"><div class="chart-container"><canvas id="pieChart"></canvas></div></div>
+        </div>
+
+        <!-- 异常检测 -->
+        <div class="card full-width">
+            <div class="card-header fw-bold"><i class="bi bi-shield-exclamation"></i> 销售异常检测（2σ 判定）</div>
+            <div class="card-body"><div class="chart-container" style="height:280px;"><canvas id="anomalyChart"></canvas></div></div>
+        </div>
+
+        {% if current_user.is_admin() %}
+        <!-- 用户地域分布 -->
+        <div class="card full-width">
+            <div class="card-header fw-bold"><i class="bi bi-geo-alt"></i> 用户地域分布</div>
+            <div class="card-body"><div class="chart-container" style="height:280px;"><canvas id="regionChart"></canvas></div></div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+let trendChart, rankChart, pieChart, anomalyChart, regionChart;
+
+// ── 销售趋势 ──
+function loadTrend(period) {
+  fetch('/api/analytics/sales-trend?period=' + period)
+    .then(r => r.json())
+    .then(data => {
+      if (trendChart) trendChart.destroy();
+      trendChart = new Chart(document.getElementById('trendChart'), {
+        type: 'bar',
+        data: {
+          labels: data.map(d => d.label),
+          datasets: [{
+            label: '销售额 (¥)',
+            data: data.map(d => d.value),
+            backgroundColor: 'rgba(13,110,253,0.7)',
+            borderRadius: 4
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    });
+}
+
+document.querySelectorAll('#trendBtns button').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('#trendBtns button').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    loadTrend(this.dataset.period);
+  });
+});
+loadTrend('daily');
+
+// ── 排行榜 ──
+fetch('/api/analytics/top-products')
+  .then(r => r.json())
+  .then(data => {
+    rankChart = new Chart(document.getElementById('rankChart'), {
+      type: 'bar',
+      data: {
+        labels: data.slice(0, 10).map(d => d.name.substring(0, 8)),
+        datasets: [{ label: '销量', data: data.slice(0,10).map(d => d.sales), backgroundColor: 'rgba(118,75,162,0.7)', borderRadius: 4 }]
+      },
+      options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false }
+    });
+  });
+
+// ── 饼图 ──
+fetch('/api/analytics/category-distribution')
+  .then(r => r.json())
+  .then(data => {
+    pieChart = new Chart(document.getElementById('pieChart'), {
+      type: 'doughnut',
+      data: {
+        labels: data.map(d => d.name),
+        datasets: [{ data: data.map(d => d.value), backgroundColor: ['#667eea','#764ba2','#f093fb','#4facfe','#43e97b','#fa709a','#fee140','#30cfd0'] }]
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+  });
+
+// ── 异常检测 ──
+fetch('/api/analytics/anomaly-detection')
+  .then(r => r.json())
+  .then(data => {
+    anomalyChart = new Chart(document.getElementById('anomalyChart'), {
+      type: 'line',
+      data: {
+        labels: data.recent.map(d => d.date),
+        datasets: [{
+          label: '每日订单量',
+          data: data.recent.map(d => d.count),
+          borderColor: '#0d6efd',
+          backgroundColor: 'rgba(13,110,253,0.1)',
+          fill: true, tension: 0.3,
+          pointBackgroundColor: data.recent.map((d, i) => {
+            return data.anomalies.some(a => a.date === d.date) ? '#e74c3c' : '#0d6efd';
+          }),
+          pointRadius: data.recent.map(d => data.anomalies.some(a => a.date === d.date) ? 6 : 3)
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+  });
+
+{% if current_user.is_admin() %}
+// ── 地域分布 ──
+fetch('/api/analytics/user-regions')
+  .then(r => r.json())
+  .then(data => {
+    regionChart = new Chart(document.getElementById('regionChart'), {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.region),
+        datasets: [
+          { label: '用户数', data: data.map(d => d.count), backgroundColor: 'rgba(13,110,253,0.7)', borderRadius: 4 },
+          { label: '消费总额 (¥)', data: data.map(d => d.total_spent), backgroundColor: 'rgba(231,76,60,0.7)', borderRadius: 4 }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+  });
+{% endif %}
+
+// ── 统计卡片 ──
+fetch('/api/analytics/sales-trend?period=daily')
+  .then(r => r.json())
+  .then(data => {
+    if (data.length > 0) {
+      let today = data[data.length - 1];
+      document.getElementById('statToday').textContent = '¥' + today.value.toFixed(0);
+      document.getElementById('statOrders').textContent = today.orders;
+    }
+  });
+</script>
+{% endblock %}

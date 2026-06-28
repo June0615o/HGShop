@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}销售管理 - 惠购商城{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h4><i class="bi bi-bar-chart"></i> 销售管理面板</h4>
+    <div class="row g-3 mt-2">
+        <div class="col-md-3"><div class="card stat-card p-3"><small class="text-muted">商品总数</small><h3>{{ total_products }}</h3></div></div>
+        <div class="col-md-3"><div class="card stat-card p-3"><small class="text-muted">在售商品</small><h3>{{ active_products }}</h3></div></div>
+        <div class="col-md-3"><div class="card stat-card p-3"><small class="text-muted">今日订单</small><h3>{{ today_orders }}</h3></div></div>
+        <div class="col-md-3"><div class="card stat-card p-3"><small class="text-muted">总收入</small><h3 class="text-danger">¥{{ "%.0f"|format(total_revenue) }}</h3></div></div>
+    </div>
+
+    <!-- 销售趋势图 -->
+    <div class="card mt-4">
+        <div class="card-header fw-bold"><i class="bi bi-graph-up"></i> 最近7天销售趋势</div>
+        <div class="card-body"><div class="chart-container"><canvas id="salesTrendChart"></canvas></div></div>
+    </div>
+
+    <!-- 库存预警 -->
+    {% if low_stock_products %}
+    <div class="card mt-4">
+        <div class="card-header fw-bold text-warning"><i class="bi bi-exclamation-triangle"></i> 库存预警 (库存 &lt; 10)</div>
+        <div class="card-body">
+            <table class="table table-sm">
+                <thead><tr><th>商品</th><th>库存</th><th>价格</th><th>操作</th></tr></thead>
+                <tbody>
+                    {% for p in low_stock_products %}
+                    <tr>
+                        <td>{{ p.name }}</td>
+                        <td><span class="text-danger fw-bold">{{ p.stock }}</span></td>
+                        <td>¥{{ "%.2f"|format(p.price) }}</td>
+                        <td><a href="{{ url_for('sales_product_edit', product_id=p.id) }}" class="btn btn-sm btn-outline-warning">补货</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row mt-4">
+        <div class="col-md-4"><a href="{{ url_for('sales_products') }}" class="btn btn-outline-primary w-100 p-4"><i class="bi bi-box"></i><br>商品管理</a></div>
+        <div class="col-md-4"><a href="{{ url_for('sales_categories') }}" class="btn btn-outline-primary w-100 p-4"><i class="bi bi-tags"></i><br>类别管理</a></div>
+        <div class="col-md-4"><a href="{{ url_for('sales_logs') }}" class="btn btn-outline-primary w-100 p-4"><i class="bi bi-journal-text"></i><br>日志查看</a></div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+fetch('/api/analytics/sales-trend?period=daily')
+  .then(r => r.json())
+  .then(data => {
+    new Chart(document.getElementById('salesTrendChart'), {
+      type: 'line',
+      data: {
+        labels: data.map(d => d.label),
+        datasets: [{
+          label: '销售额 (¥)',
+          data: data.map(d => d.value),
+          borderColor: '#0d6efd',
+          backgroundColor: 'rgba(13,110,253,0.1)',
+          fill: true,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true } }
+      }
+    });
+  });
+</script>
+{% endblock %}

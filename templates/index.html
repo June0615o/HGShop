@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}惠购商城 - 首页{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <!-- 搜索栏 -->
+    <div class="row mb-4">
+        <div class="col-md-8 mx-auto">
+            <form method="GET" action="{{ url_for('index') }}" class="d-flex gap-2">
+                <input type="text" name="search" class="form-control form-control-lg"
+                       placeholder="搜索商品..." value="{{ search }}">
+                <select name="category" class="form-select" style="max-width:160px">
+                    <option value="">全部分类</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if current_category == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+                <select name="sort" class="form-select" style="max-width:140px">
+                    <option value="default" {% if sort == 'default' %}selected{% endif %}>默认排序</option>
+                    <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>价格↑</option>
+                    <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>价格↓</option>
+                    <option value="sales" {% if sort == 'sales' %}selected{% endif %}>销量排行</option>
+                </select>
+                <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 个性化推荐 -->
+    {% if recommended %}
+    <section class="mb-4">
+        <h5 class="mb-3"><i class="bi bi-stars text-warning"></i> 猜你喜欢</h5>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-3">
+            {% for p in recommended %}
+            <div class="col">
+                <div class="card product-card h-100" onclick="location.href='{{ url_for('product_detail', product_id=p.id) }}'">
+                    <div class="card-img-top d-flex align-items-center justify-content-center text-white fs-4 fw-bold"
+                         style="background: linear-gradient(135deg, {{ ['#a18cd1','#fbc2eb','#fad0c4','#ffecd2','#a1c4fd','#c2e9fb','#d4fc79','#96e6a1','#f5576c','#ff6e7f']|random }}, {{ ['#fbc2eb','#a18cd1','#a1c4fd','#fad0c4','#c2e9fb','#ffecd2','#96e6a1','#d4fc79','#ff6e7f','#f5576c']|random }});">
+                        {{ p.name[0] }}
+                    </div>
+                    <div class="card-body p-2">
+                        <p class="card-text small mb-1 text-truncate">{{ p.name }}</p>
+                        <span class="price-tag">¥{{ "%.2f"|format(p.price) }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <div class="row">
+        <!-- 商品列表 -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">
+                    {% if search %}搜索 "{{ search }}" 的结果{% else %}全部商品{% endif %}
+                </h5>
+                <small class="text-muted">共 {{ products.total }} 件</small>
+            </div>
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
+                {% for p in products.items %}
+                <div class="col">
+                    <div class="card product-card h-100" onclick="location.href='{{ url_for('product_detail', product_id=p.id) }}'">
+                        <div class="card-img-top d-flex align-items-center justify-content-center text-white fs-4 fw-bold"
+                             style="background: linear-gradient(135deg, {{ ['#a18cd1','#fbc2eb','#fad0c4','#ffecd2','#a1c4fd','#c2e9fb','#d4fc79','#96e6a1','#f5576c','#ff6e7f','#667eea','#764ba2','#4facfe','#00f2fe']|random }}, {{ ['#fbc2eb','#a18cd1','#a1c4fd','#fad0c4','#c2e9fb','#ffecd2','#96e6a1','#d4fc79','#ff6e7f','#f5576c','#764ba2','#667eea','#00f2fe','#4facfe']|random }});">
+                            {{ p.name[0] }}
+                        </div>
+                        <div class="card-body p-2">
+                            <p class="card-text small mb-1 text-truncate" title="{{ p.name }}">{{ p.name }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="price-tag">¥{{ "%.2f"|format(p.price) }}</span>
+                                <small class="text-muted">已售 {{ p.sales_count }}</small>
+                            </div>
+                            {% if p.stock <= 10 and p.stock > 0 %}
+                            <small class="text-warning">仅剩 {{ p.stock }} 件</small>
+                            {% elif p.stock == 0 %}
+                            <small class="text-danger">已售罄</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12 text-center py-5 text-muted">
+                    <i class="bi bi-inbox" style="font-size:3rem"></i>
+                    <p>没有找到相关商品</p>
+                </div>
+                {% endfor %}
+            </div>
+            <!-- 分页 -->
+            {% if products.pages > 1 %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% for p in products.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if p %}
+                        <li class="page-item {{ 'active' if p == products.page }}">
+                            <a class="page-link" href="{{ url_for('index', page=p, category=current_category, search=search, sort=sort) }}">{{ p }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+        <!-- 侧边栏 -->
+        <div class="col-md-3">
+            <div class="card mb-3">
+                <div class="card-header fw-bold"><i class="bi bi-trophy"></i> 热销排行榜</div>
+                <div class="list-group list-group-flush">
+                    {% for p in top_products[:10] %}
+                    <a href="{{ url_for('product_detail', product_id=p.id) }}"
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <span class="text-truncate me-2">
+                            <span class="badge bg-{{ 'warning' if loop.index <= 3 else 'secondary' }} me-1">{{ loop.index }}</span>
+                            {{ p.name }}
+                        </span>
+                        <span class="text-danger">¥{{ "%.0f"|format(p.price) }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

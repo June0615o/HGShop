@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}登录 - 惠购商城{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h3 class="text-center mb-4"><i class="bi bi-shop"></i> 惠购商城</h3>
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">用户名</label>
+                            <input type="text" name="username" class="form-control" required autofocus>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">密码</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" name="remember" class="form-check-input" id="remember">
+                            <label class="form-check-label" for="remember">记住我</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">登 录</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <small>还没有账号？<a href="{{ url_for('register') }}">立即注册</a></small>
+                    </div>
+                </div>
+            </div>
+            <div class="card mt-3">
+                <div class="card-body p-3">
+                    <small class="text-muted">测试账号：</small>
+                    <div class="small">
+                        <span class="badge bg-primary">用户</span> user1 / user123<br>
+                        <span class="badge bg-warning">销售</span> merchant1 / merchant123<br>
+                        <span class="badge bg-danger">管理</span> admin / admin123
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

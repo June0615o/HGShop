@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}管理后台 - 惠购商城{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h4><i class="bi bi-speedometer2"></i> 管理员控制台</h4>
+    <div class="row g-3 mt-2">
+        <div class="col-md-3"><div class="card stat-card p-3"><small class="text-muted">用户总数</small><h3>{{ user_count }}</h3></div></div>
+        <div class="col-md-3"><div class="card stat-card p-3"><small class="text-muted">商品总数</small><h3>{{ product_count }}</h3></div></div>
+        <div class="col-md-3"><div class="card stat-card p-3"><small class="text-muted">订单总数</small><h3>{{ order_count }}</h3></div></div>
+        <div class="col-md-3"><div class="card stat-card p-3"><small class="text-muted">总收入</small><h3 class="text-danger">¥{{ "%.0f"|format(total_revenue) }}</h3></div></div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- 销售排行榜 -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header fw-bold"><i class="bi bi-trophy"></i> 商品销售排行榜 TOP10</div>
+                <div class="card-body">
+                    {% if sales_ranking %}
+                    <table class="table table-sm">
+                        <thead><tr><th>#</th><th>商品</th><th>销量</th></tr></thead>
+                        <tbody>
+                            {% for name, count in sales_ranking %}
+                            <tr>
+                                <td><span class="badge bg-{{ 'warning' if loop.index <= 3 else 'secondary' }}">{{ loop.index }}</span></td>
+                                <td>{{ name }}</td>
+                                <td>{{ count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted text-center py-3">暂无销售数据</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- 类别销售分布 -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header fw-bold"><i class="bi bi-pie-chart"></i> 类别销售额分布</div>
+                <div class="card-body"><div class="chart-container"><canvas id="categoryChart"></canvas></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-4"><a href="{{ url_for('admin_users') }}" class="btn btn-outline-danger w-100 p-4"><i class="bi bi-people"></i><br>用户管理</a></div>
+        <div class="col-md-4"><a href="{{ url_for('admin_operation_logs') }}" class="btn btn-outline-danger w-100 p-4"><i class="bi bi-journal-code"></i><br>操作日志</a></div>
+        <div class="col-md-4"><a href="{{ url_for('sales_dashboard') }}" class="btn btn-outline-danger w-100 p-4"><i class="bi bi-bar-chart"></i><br>销售管理</a></div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script>
+fetch('/api/analytics/category-distribution')
+  .then(r => r.json())
+  .then(data => {
+    new Chart(document.getElementById('categoryChart'), {
+      type: 'doughnut',
+      data: {
+        labels: data.map(d => d.name),
+        datasets: [{
+          data: data.map(d => d.value),
+          backgroundColor: ['#667eea','#764ba2','#f093fb','#4facfe','#43e97b','#fa709a','#fee140','#30cfd0','#a8edea','#f6d365']
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+  });
+</script>
+{% endblock %}

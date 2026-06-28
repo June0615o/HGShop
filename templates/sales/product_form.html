@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{% if product %}编辑商品{% else %}添加商品{% endif %} - 惠购商城{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h4>{% if product %}编辑商品 #{{ product.id }}{% else %}添加新商品{% endif %}</h4>
+    <div class="card mt-3">
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label">商品名称 <span class="text-danger">*</span></label>
+                    <input type="text" name="name" class="form-control" value="{{ product.name if product else '' }}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">描述</label>
+                    <textarea name="description" class="form-control" rows="3">{{ product.description if product else '' }}</textarea>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">价格 <span class="text-danger">*</span></label>
+                        <input type="number" name="price" step="0.01" class="form-control" value="{{ product.price if product else '' }}" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">库存</label>
+                        <input type="number" name="stock" class="form-control" value="{{ product.stock if product else 0 }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">分类</label>
+                        <select name="category_id" class="form-select">
+                            <option value="">无分类</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if product and product.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">图片URL</label>
+                    <input type="text" name="image_url" class="form-control" value="{{ product.image_url if product else '' }}">
+                </div>
+                {% if product %}
+                <div class="mb-3 form-check">
+                    <input type="checkbox" name="is_active" class="form-check-input" id="is_active" {% if product.is_active %}checked{% endif %}>
+                    <label class="form-check-label" for="is_active">上架销售</label>
+                </div>
+                {% endif %}
+                <button type="submit" class="btn btn-primary">保存</button>
+                <a href="{{ url_for('sales_products') }}" class="btn btn-secondary">取消</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

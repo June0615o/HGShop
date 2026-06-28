@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}商品管理 - 惠购商城{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4><i class="bi bi-box"></i> 商品管理</h4>
+        <a href="{{ url_for('sales_product_add') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> 添加商品</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th><th>名称</th><th>分类</th><th>价格</th><th>库存</th><th>销量</th><th>状态</th><th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products.items %}
+                <tr>
+                    <td>{{ p.id }}</td>
+                    <td>{{ p.name }}</td>
+                    <td>{{ p.category.name if p.category else '-' }}</td>
+                    <td>¥{{ "%.2f"|format(p.price) }}</td>
+                    <td>
+                        {% if p.stock <= 5 %}<span class="text-danger fw-bold">{% endif %}
+                        {{ p.stock }}
+                        {% if p.stock <= 5 %}</span>{% endif %}
+                    </td>
+                    <td>{{ p.sales_count }}</td>
+                    <td>
+                        {% if p.is_active %}<span class="badge bg-success">在售</span>
+                        {% else %}<span class="badge bg-secondary">下架</span>{% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('sales_product_edit', product_id=p.id) }}" class="btn btn-sm btn-outline-primary">编辑</a>
+                        <form method="POST" action="{{ url_for('sales_product_delete', product_id=p.id) }}" class="d-inline"
+                              onsubmit="return confirm('确定下架该商品？')">
+                            <button class="btn btn-sm btn-outline-danger">下架</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if products.pages > 1 %}
+    <nav><ul class="pagination">
+        {% for p in products.iter_pages() %}
+            {% if p %}<li class="page-item {{ 'active' if p == products.page }}"><a class="page-link" href="?page={{ p }}">{{ p }}</a></li>
+            {% else %}<li class="page-item disabled"><span class="page-link">...</span></li>{% endif %}
+        {% endfor %}
+    </ul></nav>
+    {% endif %}
+</div>
+{% endblock %}
