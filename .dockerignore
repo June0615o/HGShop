@@ -1,0 +1,14 @@
+# 不打包进 Docker 镜像
+__pycache__/
+*.pyc
+.git/
+.gitignore
+.dockerignore
+README.md
+DEPLOY.md
+seed_data.py
+data/*.db
+deploy/
+venv/
+.venv/
+*.md
