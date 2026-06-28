@@ -248,7 +248,7 @@ def update_user_preferences(users):
 
 def main():
     with app.app_context():
-        print('=== HGShop Cold-Start Data Generator ===\n')
+        print('=== SmartPick Cold-Start Data Generator ===\n')
 
         print('[1/4] Creating users...')
         users = create_users()

@@ -15,7 +15,7 @@ from app import app  # noqa: E402
 if __name__ == '__main__':
     import argparse
 
-    parser = argparse.ArgumentParser(description='惠购商城 WSGI 服务器')
+    parser = argparse.ArgumentParser(description='智汇优品 WSGI 服务器')
     parser.add_argument('--host', default='0.0.0.0', help='监听地址 (默认 0.0.0.0)')
     parser.add_argument('--port', type=int, default=8000, help='监听端口 (默认 8000)')
     parser.add_argument('--threads', type=int, default=4, help='线程数 (默认 4)')

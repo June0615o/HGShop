@@ -1,4 +1,4 @@
-"""惠购商城 — 网络应用架构课程设计 主应用"""
+"""智汇优品 — 网络应用架构课程设计 主应用"""
 import os
 import json
 from datetime import datetime, timedelta
@@ -476,7 +476,7 @@ def _send_order_email(user, order):
     try:
         if app.config['MAIL_USERNAME']:
             msg = Message(
-                f'惠购商城 - 订单确认 #{order.id}',
+                f'智汇优品 - 订单确认 #{order.id}',
                 sender=app.config['MAIL_USERNAME'],
                 recipients=[user.email]
             )
@@ -486,7 +486,7 @@ def _send_order_email(user, order):
 
 感谢您的购买！
 
-惠购商城
+智汇优品
 """
             mail.send(msg)
     except Exception:
@@ -1137,13 +1137,13 @@ def init_db():
 
     # 创建管理员
     if not User.query.filter_by(username='admin').first():
-        admin = User(username='admin', email='admin@huigomall.com', role='admin', region='广州')
+        admin = User(username='admin', email='admin@smartpick.com', role='admin', region='广州')
         admin.set_password('admin123')
         db.session.add(admin)
 
     # 创建销售人员
     if not User.query.filter_by(username='merchant1').first():
-        sales = User(username='merchant1', email='merchant1@huigomall.com', role='sales', region='深圳')
+        sales = User(username='merchant1', email='merchant1@smartpick.com', role='sales', region='深圳')
         sales.set_password('merchant123')
         db.session.add(sales)
 

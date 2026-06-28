@@ -1,4 +1,4 @@
-# 惠购商城 — 云服务器部署指南
+# 智汇优品 — 云服务器部署指南
 
 ## 📋 目录
 
@@ -89,7 +89,7 @@ ufw enable
 scp -r "/c/Users/Ayaka/Desktop/网络应用架构课程设计/webapp" root@YOUR_IP:/tmp/
 
 # SSH 登录服务器，移动到正式目录
-ssh root@YOUR_IP "mv /tmp/webapp /opt/huigomall"
+ssh root@YOUR_IP "mv /tmp/webapp /opt/smartpick"
 ```
 
 ### 方法二：GitHub 中转
@@ -102,13 +102,13 @@ git add .
 git commit -m "部署版本"
 
 # 推送到 GitHub（先创建仓库）
-git remote add origin https://github.com/你的用户名/huigo-mall.git
+git remote add origin https://github.com/你的用户名/SmartPick.git
 git push -u origin main
 
 # SSH 登录服务器后 clone
 ssh root@YOUR_IP
 cd /opt
-git clone https://github.com/你的用户名/huigo-mall.git huigomall
+git clone https://github.com/你的用户名/SmartPick.git smartpick
 ```
 
 ---
@@ -119,7 +119,7 @@ SSH 登录服务器后：
 
 ```bash
 # 进入项目目录
-cd /opt/huigomall
+cd /opt/smartpick
 
 # 赋予执行权限
 chmod +x deploy/deploy.sh
@@ -143,7 +143,7 @@ bash deploy/deploy.sh
 
 ```bash
 # 查看服务状态
-systemctl status huigomall
+systemctl status smartpick
 
 # 看到 "active (running)" 表示成功！
 ```
@@ -166,21 +166,21 @@ systemctl status huigomall
 
 ```bash
 # 应用日志（实时）
-journalctl -u huigomall -f
+journalctl -u smartpick -f
 
 # Nginx 访问日志
-tail -f /var/log/nginx/huigomall_access.log
+tail -f /var/log/nginx/smartpick_access.log
 
 # Nginx 错误日志
-tail -f /var/log/nginx/huigomall_error.log
+tail -f /var/log/nginx/smartpick_error.log
 ```
 
 ### 更新代码后重新部署
 
 ```bash
-cd /opt/huigomall
+cd /opt/smartpick
 git pull                      # 拉取最新代码
-systemctl restart huigomall   # 重启服务
+systemctl restart smartpick   # 重启服务
 ```
 
 ### 修改 SECRET_KEY（安全建议）
@@ -190,13 +190,13 @@ systemctl restart huigomall   # 重启服务
 openssl rand -hex 32
 
 # 编辑 systemd 服务文件
-vi /etc/systemd/system/huigomall.service
+vi /etc/systemd/system/smartpick.service
 # 将 Environment="SECRET_KEY=change-me-to-a-random-string"
 # 改为上面生成的随机字符串
 
 # 重载生效
 systemctl daemon-reload
-systemctl restart huigomall
+systemctl restart smartpick
 ```
 
 ---
@@ -207,20 +207,20 @@ systemctl restart huigomall
 
 1. 检查安全组是否开放了 **80 端口**
 2. 检查 Nginx 是否运行：`systemctl status nginx`
-3. 检查应用是否运行：`systemctl status huigomall`
+3. 检查应用是否运行：`systemctl status smartpick`
 
 ### Q2: 部署后出现 502 Bad Gateway
 
 ```bash
 # 通常意味着 Gunicorn 没有正常启动
-journalctl -u huigomall -n 50  # 查看最后 50 行日志
+journalctl -u smartpick -n 50  # 查看最后 50 行日志
 ```
 
-常见原因：数据库权限问题 → 检查 `/opt/huigomall/data/` 权限。
+常见原因：数据库权限问题 → 检查 `/opt/smartpick/data/` 权限。
 
 ### Q3: 邮件发送不工作
 
-编辑 `/etc/systemd/system/huigomall.service`，添加你的 QQ 邮箱配置：
+编辑 `/etc/systemd/system/smartpick.service`，添加你的 QQ 邮箱配置：
 
 ```
 Environment="MAIL_USERNAME=你的QQ@qq.com"
@@ -232,7 +232,7 @@ Environment="MAIL_PASSWORD=QQ邮箱授权码"
 ### Q4: 如何绑定域名？
 
 1. 在 DNS 服务商处添加 A 记录，指向你的公网 IP
-2. 编辑 `/etc/nginx/sites-available/huigomall`，将 `server_name _;` 改为 `server_name 你的域名;`
+2. 编辑 `/etc/nginx/sites-available/smartpick`，将 `server_name _;` 改为 `server_name 你的域名;`
 3. 重新加载 Nginx：`systemctl reload nginx`
 
 ---
@@ -249,7 +249,7 @@ webapp/
 ├── deploy/
 │   ├── deploy.sh       # ★ 一键部署脚本
 │   ├── nginx.conf      # Nginx 反向代理配置
-│   └── huigomall.service  # systemd 服务单元
+│   └── smartpick.service  # systemd 服务单元
 ├── data/               # SQLite 数据库（自动生成）
 ├── static/             # 静态资源
 └── templates/          # Jinja2 模板

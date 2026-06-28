@@ -1,16 +1,16 @@
 #!/bin/bash
 # ============================================================
-# 惠购商城 — 一键部署脚本 (Ubuntu 20.04/22.04/24.04)
+# 智汇优品 — 一键部署脚本 (Ubuntu 20.04/22.04/24.04)
 # 在云服务器上以 root 执行: bash deploy.sh
 # ============================================================
 set -e
 
-APP_DIR="/opt/huigomall"
+APP_DIR="/opt/smartpick"
 VENV_DIR="$APP_DIR/venv"
 APP_USER="www-data"
 
 echo "========================================"
-echo "  惠购商城 — 自动部署脚本"
+echo "  智汇优品 — 自动部署脚本"
 echo "========================================"
 
 # 1. 系统依赖
@@ -55,17 +55,17 @@ chmod -R 755 $APP_DIR
 
 # 6. Nginx
 echo ">>> [6/7] 配置 Nginx..."
-cp $APP_DIR/deploy/nginx.conf /etc/nginx/sites-available/huigomall
-ln -sf /etc/nginx/sites-available/huigomall /etc/nginx/sites-enabled/
+cp $APP_DIR/deploy/nginx.conf /etc/nginx/sites-available/smartpick
+ln -sf /etc/nginx/sites-available/smartpick /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx
 
 # 7. systemd 服务
 echo ">>> [7/7] 配置 systemd 服务..."
-cp $APP_DIR/deploy/huigomall.service /etc/systemd/system/
+cp $APP_DIR/deploy/smartpick.service /etc/systemd/system/
 systemctl daemon-reload
-systemctl enable huigomall
-systemctl restart huigomall
+systemctl enable smartpick
+systemctl restart smartpick
 
 echo ""
 echo "========================================"
@@ -77,7 +77,7 @@ echo "  销售员: merchant1 / merchant123"
 echo "  用户:   user1 / user123"
 echo ""
 echo "  常用命令:"
-echo "    systemctl status huigomall   # 查看服务状态"
-echo "    journalctl -u huigomall -f   # 实时日志"
-echo "    systemctl restart huigomall  # 重启服务"
+echo "    systemctl status smartpick   # 查看服务状态"
+echo "    journalctl -u smartpick -f   # 实时日志"
+echo "    systemctl restart smartpick  # 重启服务"
 echo "========================================"

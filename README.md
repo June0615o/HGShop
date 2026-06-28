@@ -1,4 +1,4 @@
-# 🛒 惠购商城 (HGShop)
+# 🛒 智汇优品 (SmartPick)
 
 > 网络应用架构设计与开发 课程设计 — 华南理工大学 计算机科学与工程学院
 
@@ -7,13 +7,13 @@
 [![Docker](https://img.shields.io/badge/Docker-27.5-blue)](https://docker.com)
 [![Deploy](https://img.shields.io/badge/live-online-brightgreen)](http://114.132.89.114)
 
-**在线地址**：[http://114.132.89.114](http://114.132.89.114) ｜ **代码仓库**：[GitHub](https://github.com/June0615o/HGShop)
+**在线地址**：[http://114.132.89.114](http://114.132.89.114) ｜ **代码仓库**：[GitHub](https://github.com/June0615o/SmartPick)
 
 ---
 
 ## 📋 项目简介
 
-惠购商城是一个完整的电子商务平台，在基础电商功能之上集成了**大数据采集、用户行为分析、个性化推荐系统**及**数据可视化大屏**，支持三类用户角色的协同工作。
+智汇优品是一个完整的电子商务平台，在基础电商功能之上集成了**大数据采集、用户行为分析、个性化推荐系统**及**数据可视化大屏**，支持三类用户角色的协同工作。
 
 ## ✨ 功能特性
 
@@ -76,8 +76,8 @@
 
 ```bash
 # 1. 克隆仓库
-git clone git@github.com:June0615o/HGShop.git
-cd HGShop
+git clone git@github.com:June0615o/SmartPick.git
+cd SmartPick
 
 # 2. 安装依赖
 pip install -r requirements.txt
@@ -102,7 +102,7 @@ docker compose up -d --build
 docker compose ps
 
 # 查看日志
-docker logs hgshop-app -f
+docker logs smartpick-app -f
 
 # 重启
 docker compose restart
@@ -125,7 +125,7 @@ docker compose restart
 ## 📁 项目结构
 
 ```
-HGShop/
+SmartPick/
 ├── app.py                 # 主应用（路由、业务逻辑、API）
 ├── wsgi.py                # 生产环境 WSGI 入口
 ├── models.py              # 数据模型（10 张表）
@@ -142,7 +142,7 @@ HGShop/
 │   ├── deploy.sh          # 裸机一键部署
 │   ├── nginx.conf          # 裸机 Nginx 配置
 │   ├── nginx-docker.conf   # Docker Nginx 配置
-│   └── huigomall.service   # systemd 服务单元
+│   └── smartpick.service   # systemd 服务单元
 ├── data/                  # SQLite 数据库（Git 忽略）
 ├── static/                # 静态资源
 └── templates/             # Jinja2 模板（18 个 HTML）
